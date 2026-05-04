@@ -34,7 +34,7 @@ return new class extends Migration
             ->default('coming_soon')
             ->comment('showing=Em cartaz, coming_soon=Em breve, off_screen=Fora de cartaz');
 
-            $table->date('release_date');
+            $table->date('release_date')->nullable();
 
             $table->timestamps();
 

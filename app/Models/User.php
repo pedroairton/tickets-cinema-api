@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -22,6 +23,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'cpf',
+        'phone',
+        'birth_date',
     ];
 
     /**
@@ -44,6 +49,43 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birth_date' => 'date',
         ];
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    // scopes
+
+    // filtro clientes
+    public function scopeCustomers(Builder $query)
+    {
+        return $query->where('role', 'customer');
+    }
+
+    // filtro admins
+    public function scopeAdmins(Builder $query)
+    {
+        return $query->where('role', 'admin');
+    }
+
+    // helpers
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->role === 'customer';
     }
 }
