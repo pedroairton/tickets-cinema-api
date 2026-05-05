@@ -14,75 +14,82 @@ use App\Http\Controllers\Public\SeatController;
 use App\Http\Controllers\Public\TicketController;
 use Illuminate\Support\Facades\Route;
 
-// auth
-Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok'
+    ]);
+});
+Route::prefix('v1')->group(function () {
+    // auth
+    Route::prefix('auth')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/logout', [AuthController::class, 'logout']);
+            Route::get('/me', [AuthController::class, 'me']);
+        });
+    });
+
+    // rotas publicas
+    Route::prefix('movies')->group(function () {
+        Route::get('/', [PublicMovieController::class, 'index']);
+        Route::get('/{movie:slug}', [PublicMovieController::class, 'show']);
+        Route::get('/{movie:slug}/screenings', [PublicMovieController::class, 'screenings']);
+    });
+
+    Route::prefix('genres')->group(function () {
+        Route::get('/', [PublicGenreController::class, 'index']);
+        Route::get('/{genre:slug}/movies', [PublicGenreController::class, 'movies']);
+    });
+
+    Route::prefix('screenings')->group(function () {
+        Route::get('/', [PublicScreeningController::class, 'index']);
+        Route::get('/{screening}', [PublicScreeningController::class, 'show']);
+        Route::get('/{screening}/seats', [PublicScreeningController::class, 'seats']);
+    });
+
+    // rotas autenticadas - customer
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/screenings/{screening}/available-seats', [SeatController::class, 'available']);
+
+        // pedidos
+        Route::prefix('orders')->group(function () {
+            Route::get('/', [OrderController::class, 'index']);
+            Route::post('/', [OrderController::class, 'store']);
+            Route::get('/{order}', [OrderController::class, 'show']);
+            Route::patch('/{order}/cancel', [OrderController::class, 'cancel']);
+        });
+
+        // tickets (historico)
+        Route::prefix('tickets')->group(function () {
+            Route::get('/', [TicketController::class, 'index']);
+            Route::get('/{ticket}', [TicketController::class, 'show']);
+        });
     });
-});
 
-// rotas publicas
-Route::prefix('movies')->group(function () {
-    Route::get('/', [PublicMovieController::class, 'index']);
-    Route::get('/{movie:slug}', [PublicMovieController::class, 'show']);
-    Route::get('/{movie:slug}/screenings', [PublicMovieController::class, 'screenings']);
-});
+    // rotas autenticadas - admin
 
-Route::prefix('genres')->group(function () {
-    Route::get('/', [PublicGenreController::class, 'index']);
-    Route::get('/{genre:slug}/movies', [PublicGenreController::class, 'movies']);
-});
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+        Route::get('/dashboard/summary', [DashboardController::class, 'index']);
+        Route::get('/dashboard/top-movies', [DashboardController::class, 'topMovies']);
+        Route::get('/dashboard/revenue', [DashboardController::class, 'revenue']);
+        Route::get('/dashboard/popular-times', [DashboardController::class, 'popularTimes']);
+        Route::get('/dashboard/top-genres', [DashboardController::class, 'topGenres']);
 
-Route::prefix('screenings')->group(function () {
-    Route::get('/', [PublicScreeningController::class, 'index']);
-    Route::get('/{screening}', [PublicScreeningController::class, 'show']);
-    Route::get('/{screening}/seats', [PublicScreeningController::class, 'seats']);
-});
+        // crud filmes
+        Route::apiResource('movies', AdminMovieController::class);
+        Route::patch('/movies/{movie}/status', [AdminMovieController::class, 'updateStatus']);
+        Route::get('/movies{movie}/insights', [AdminMovieController::class, 'insights']);
 
-// rotas autenticadas - customer
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/screenings/{screening}/available-seats', [SeatController::class, 'available']);
+        // crud sessoes
+        Route::apiResource('screenings', AdminScreeningController::class);
 
-    // pedidos
-    Route::prefix('orders')->group(function () {
-        Route::get('/', [OrderController::class, 'index']);
-        Route::post('/', [OrderController::class, 'store']);
-        Route::get('/{order}', [OrderController::class, 'show']);
-        Route::patch('/{order}/cancel', [OrderController::class, 'cancel']);
+        // crud salas
+        Route::apiResource('rooms', AdminRoomController::class);
+
+        // crud generos
+        Route::apiResource('genres', AdminGenreController::class);
     });
-    
-    // tickets (historico)
-    Route::prefix('tickets')->group(function () {
-        Route::get('/', [TicketController::class, 'index']);
-        Route::get('/{ticket}', [TicketController::class, 'show']);
-    });
-    
-});
-
-// rotas autenticadas - admin
-
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
-    Route::get('/dashboard/summary', [DashboardController::class, 'index']);
-    Route::get('/dashboard/top-movies', [DashboardController::class, 'topMovies']);
-    Route::get('/dashboard/revenue', [DashboardController::class, 'revenue']);
-    Route::get('/dashboard/popular-times', [DashboardController::class, 'popularTimes']);
-    Route::get('/dashboard/top-genres', [DashboardController::class, 'topGenres']);
-
-    // crud filmes
-    Route::apiResource('movies', AdminMovieController::class);
-    Route::patch('/movies/{movie}/status', [AdminMovieController::class, 'updateStatus']);
-    Route::get('/movies{movie}/insights', [AdminMovieController::class, 'insights']);
-
-    // crud sessoes
-    Route::apiResource('screenings', AdminScreeningController::class);
-    
-    // crud salas
-    Route::apiResource('rooms', AdminRoomController::class);
-
-    // crud generos
-    Route::apiResource('genres', AdminGenreController::class);
 });
