@@ -15,11 +15,40 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->command->info('🎬 Iniciando seed do sistema de cinema...');
+        $this->command->newLine();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            GenreSeeder::class,
+            UserSeeder::class,
+            MovieSeeder::class,
+            RoomSeeder::class,
+            ScreeningSeeder::class,
+            OrderAndTicketSeeder::class,
         ]);
+
+        $this->command->newLine();
+        $this->command->info('✅ Seed concluído com sucesso!');
+        $this->command->newLine();
+
+        // Resumo
+        $this->command->table(
+            ['Tabela', 'Registros'],
+            [
+                ['users', \App\Models\User::count()],
+                ['genres', \App\Models\Genre::count()],
+                ['movies', \App\Models\Movie::count()],
+                ['rooms', \App\Models\Room::count()],
+                ['seats', \App\Models\Seat::count()],
+                ['screenings', \App\Models\Screening::count()],
+                ['orders', \App\Models\Order::count()],
+                ['tickets', \App\Models\Ticket::count()],
+            ]
+        );
+
+        $this->command->newLine();
+        $this->command->info('🔑 Credenciais de acesso:');
+        $this->command->line('   Admin:   admin@cinema.com / password');
+        $this->command->line('   Cliente: joao@email.com   / password');
     }
 }
