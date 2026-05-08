@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DashboardRequest;
 use App\Http\Requests\Admin\UpdateMovieRequest;
 use App\Http\Requests\Admin\UpdateMovieStatusRequest;
-use App\Http\Requests\Public\StoreMovieRequest;
+use App\Http\Requests\Admin\StoreMovieRequest;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 
@@ -27,8 +27,8 @@ class MovieController extends Controller
     public function store(StoreMovieRequest $request)
     {
         $data = $request->validated();
-        $genreIds = $data['genre_ids'];
-        unset($data['genre_ids']);
+        $genreIds = $data['genres_ids'];
+        unset($data['genres_ids']);
 
         $movie = Movie::create($data);
         $movie->genres()->attach($genreIds);

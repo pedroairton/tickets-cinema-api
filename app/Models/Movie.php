@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Str;
 
 class Movie extends Model
@@ -27,68 +27,63 @@ class Movie extends Model
         'release_date',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'release_date' => 'date',
-            'duration_minutes' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'release_date' => 'date',
+        'duration_minutes' => 'integer',
+    ];
 
-    // boot slug
-
-    protected static function boot()
+    protected static function booted(): void
     {
         static::creating(function (Movie $movie) {
-            if(empty($movie->slug)) {
-                $movie->slug = Str::slug($movie->title);
-            }
-        });
-
-        static::updating(function (Movie $movie) {
-            if($movie->isDirty('title') && !$movie->isDirty('slug')) {
-                $movie->slug = Str::slug($movie->title);
-            }
+            // dd('creating fired');
+            $movie->slug = Str::slug($movie->title);
         });
     }
 
     // relacionamentos
 
-    public function genres(){
+    public function genres()
+    {
         return $this->belongsToMany(Genre::class, 'genre_movie');
     }
 
-    public function screenings(){
+    public function screenings()
+    {
         return $this->hasMany(Screening::class);
     }
 
-    public function tickets(){
+    public function tickets()
+    {
         return $this->hasManyThrough(Ticket::class, Screening::class);
     }
-    
+
     // scopes
 
     // filmes em cartaz
-    public function scopeShowing(Builder $query){
+    public function scopeShowing(Builder $query)
+    {
         return $query->where('status', 'showing');
     }
 
     // filmes em breve
-    public function scopeComingSoon(Builder $query){
+    public function scopeComingSoon(Builder $query)
+    {
         return $query->where('status', 'coming_soon');
     }
 
     // filmes fora de cartaz
-    public function scopeOffScreen(Builder $query){
+    public function scopeOffScreen(Builder $query)
+    {
         return $query->where('status', 'off_screen');
     }
 
     // filtra por classificação indicativa máxima (ex: ageRatingUpTo('14') retorna filmes com classificação indicativa L e de 10 a 14 anos)
-    public function scopeAgeRatingUpTo(Builder $query, string $maxRating){
+    public function scopeAgeRatingUpTo(Builder $query, string $maxRating)
+    {
         $order = ['L', '10', '12', '14', '16', '18'];
         $maxIndex = array_search($maxRating, $order);
 
-        if($maxIndex === false){
+        if ($maxIndex === false) {
             return $query;
         }
 
@@ -98,14 +93,16 @@ class Movie extends Model
     }
 
     // filtra por classificação indicativa exata
-    public function scopeAgeRating(Builder $query, string $rating){
+    public function scopeAgeRating(Builder $query, string $rating)
+    {
         return $query->where('age_rating', $rating);
     }
 
     // filtra por gênero (id ou slug)
-    public function scopeByGenre(Builder $query, string|int $genre){
+    public function scopeByGenre(Builder $query, string|int $genre)
+    {
         return $query->whereHas('genres', function (Builder $query) use ($genre) {
-            if(is_numeric($genre)){
+            if (is_numeric($genre)) {
                 $query->where('genres.id', $genre);
             } else {
                 $query->where('genres.slug', $genre);
@@ -114,12 +111,14 @@ class Movie extends Model
     }
 
     // filtra por faixa de duração
-    public function scopeDurationBetween(Builder $query, int $min, int $max){
+    public function scopeDurationBetween(Builder $query, int $min, int $max)
+    {
         return $query->whereBetween('duration_minutes', [$min, $max]);
     }
 
     // filmes que possuem sessões em determinada data
-    public function scopeWithScreeningsOnDate(Builder $query, string $date){
+    public function scopeWithScreeningsOnDate(Builder $query, string $date)
+    {
         return $query->whereHas('screenings', function (Builder $query) use ($date) {
             $query->whereDate('start_time', $date)
                 ->where('is_active', true);
@@ -127,21 +126,23 @@ class Movie extends Model
     }
 
     // busca por slug
-    public function scopeBySlug(Builder $query, string $slug){
+    public function scopeBySlug(Builder $query, string $slug)
+    {
         return $query->where('slug', $slug);
     }
 
     // accessors
 
     // duração formatada (ex: 2h 30min)
-    public function getFormattedDurationAttribute(){
+    public function getFormattedDurationAttribute()
+    {
         $hours = intdiv($this->duration_minutes, 60);
         $minutes = $this->duration_minutes % 60;
-        
-        if($hours === 0){
+
+        if ($hours === 0) {
             return "{$minutes} min";
         }
-        if($minutes === 0){
+        if ($minutes === 0) {
             return "{$hours} h";
         }
 

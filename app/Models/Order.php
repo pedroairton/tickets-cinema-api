@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class Order extends Model
@@ -69,6 +69,12 @@ class Order extends Model
     public function scopeRefunded(Builder $query)
     {
         return $query->where('payment_status', 'refunded');
+    }
+
+    // por usuário
+    public function scopeForUser(Builder $query, int $userId): Builder
+    {
+        return $query->where('user_id', $userId);
     }
 
     // por metodo de pagamento

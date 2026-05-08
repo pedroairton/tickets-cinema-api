@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
         $this->command->newLine();
 
         $this->call([
-            GenreSeeder::class,
-            UserSeeder::class,
+            // GenreSeeder::class,
+            // UserSeeder::class,
             MovieSeeder::class,
             RoomSeeder::class,
             ScreeningSeeder::class,

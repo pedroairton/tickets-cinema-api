@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Genre;
 use App\Models\Movie;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class MovieSeeder extends Seeder
 {
@@ -62,17 +62,33 @@ class MovieSeeder extends Seeder
                 'status' => 'showing',
                 'genres' => ['Drama', 'Crime', 'Ação']
             ],
+            [
+                'title' => 'O Poderoso Chefão III',
+                'synopsis' => 'The continuing saga of the Corleone crime family tells the story of a young Vito Corleone growing up in Sicily and in 1910s New York.',
+                'duration_minutes' => 175,
+                'age_rating' => '18',
+                'image_url' => 'https://m.media-amazon.com/images/M/MV5BMjIxMjgwNjI4MF5BMl5BanBnXkFtZTgwNjUyNjE2NDE@._V1_.jpg',
+                // 'trailer_url' => '',
+                'release_date' => '1990-12-15',
+                'original_title' => 'The Godfather: Part III',
+                'director' => 'Francis Ford Coppola',
+                'distributor' => 'Warner Bros. Pictures',
+                'country_of_origin' => 'United States',
+                'status' => 'showing',
+                'genres' => ['Drama', 'Crime', 'Ação']
+            ]
         ];
 
-        foreach($movies as $movieData){
+        foreach ($movies as $movieData) {
             $genreNames = $movieData['genres'];
             unset($movieData['genres']);
+            $movieData['slug'] = Str::slug($movieData['title']);
 
             $movie = Movie::create($movieData);
             $genreIds = collect($genreNames)
-            ->map(fn ($name) => $genres->get($name)?->id)
-            ->filter()
-            ->toArray();
+                ->map(fn($name) => $genres->get($name)?->id)
+                ->filter()
+                ->toArray();
 
             $movie->genres()->attach($genreIds);
         }
