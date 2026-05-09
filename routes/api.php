@@ -46,6 +46,7 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('screenings')->group(function () {
         Route::get('/', [PublicScreeningController::class, 'index']);
+        Route::get('/by-date', [PublicScreeningController::class, 'byDate']);
         Route::get('/{screening}', [PublicScreeningController::class, 'show']);
         Route::get('/{screening}/seats', [PublicScreeningController::class, 'seats']);
     });

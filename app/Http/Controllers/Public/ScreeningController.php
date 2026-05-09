@@ -4,12 +4,63 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\ScreeningIndexRequest;
+use App\Http\Requests\Public\ScreeningsByDateRequest;
 use App\Models\Screening;
 use App\Models\Seat;
 use Illuminate\Http\Request;
 
 class ScreeningController extends Controller
 {
+    public function byDate(ScreeningsByDateRequest $request)
+    {
+        $date = $request->input('date');
+
+        $screenings = Screening::active()
+            ->onDate($date)
+            ->where('start_time', '>=', now())
+            ->with([
+                'movie:id,title,slug,image_url,age_rating,duration_minutes',
+                'movie.genres:id,name,slug',
+                'room:id,name,total_rows,total_columns'
+            ])
+            ->orderBy('start_time')
+            ->get();
+
+        $grouped = $screenings
+            ->groupBy('movie_id')
+            ->map(function ($movieScreenings) {
+                $movie = $movieScreenings->first()->movie;
+
+                return [
+                    'movie' => [
+                        'id' => $movie->id,
+                        'title' => $movie->title,
+                        'synopsis' => $movie->synopsis,
+                        'slug' => $movie->slug,
+                        'image_url' => $movie->image_url,
+                        'age_rating' => $movie->age_rating,
+                        'duration_minutes' => $movie->duration_minutes,
+                        'genres' => $movie->genres
+                    ],
+                    'availabe_screenings' => $movieScreenings->map(fn ($s) => [
+                        'id' => $s->id,
+                        'room_id' => $s->room_id,
+                        'room_name' => $s->room->name,
+                        'start_time' => $s->start_time,
+                        'end_time' => $s->end_time,
+                        'price' => $s->price
+                    ])->values()
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'date' => $date,
+            'total' => $grouped->count(),
+            'data' => $grouped
+        ]);
+    }
+
     public function index(ScreeningIndexRequest $request)
     {
         $query = Screening::active()
@@ -71,7 +122,7 @@ class ScreeningController extends Controller
 
         $occupiedSeatsIds = Seat::occupiedForScreening($screening->id)->pluck('id')->toArray();
 
-        $seatMap = $allSeats->map(fn ($seat) => [
+        $seatMap = $allSeats->map(fn($seat) => [
             'id' => $seat->id,
             'label' => $seat->label,
             'row_label' => $seat->row_label,
