@@ -55,6 +55,15 @@ class MovieController extends Controller
         return response()->json($movies);
     }
 
+    public function search(Request $request) {
+        $search = $request['input'];
+        $movies = Movie::where('title', 'like', "%{$search}%")
+        ->orWhere('original_title', 'like', "%{$search}%")
+        ->limit(5)->get();
+
+        return response()->json($movies);
+    }
+
     public function show(Movie $movie) {
         $movie->load('genres');
 

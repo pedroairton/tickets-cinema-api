@@ -35,6 +35,7 @@ Route::prefix('v1')->group(function () {
     // rotas publicas
     Route::prefix('movies')->group(function () {
         Route::get('/', [PublicMovieController::class, 'index']);
+        Route::get('/search', [PublicMovieController::class, 'search']);
         Route::get('/{movie:slug}', [PublicMovieController::class, 'show']);
         Route::get('/{movie:slug}/screenings', [PublicMovieController::class, 'screenings']);
     });

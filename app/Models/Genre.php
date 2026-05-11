@@ -23,7 +23,7 @@ class Genre extends Model
         static::creating(function (Genre $genre) {
             if (empty($genre->slug)) {
                 $genre->slug = Str::slug($genre->name);
-                // dd('creating fired', $genre);
+                // dd('creating fired');
             }
         });
 

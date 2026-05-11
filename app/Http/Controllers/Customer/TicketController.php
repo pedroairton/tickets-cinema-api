@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Public\TicketIndexRequest;
+use App\Http\Requests\Customer\TicketIndexRequest;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 

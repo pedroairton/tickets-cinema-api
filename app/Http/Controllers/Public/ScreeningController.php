@@ -40,16 +40,16 @@ class ScreeningController extends Controller
                         'image_url' => $movie->image_url,
                         'age_rating' => $movie->age_rating,
                         'duration_minutes' => $movie->duration_minutes,
-                        'genres' => $movie->genres
+                        'genres' => $movie->genres,
+                        'availabe_screenings' => $movieScreenings->map(fn($s) => [
+                            'id' => $s->id,
+                            'room_id' => $s->room_id,
+                            'room_name' => $s->room->name,
+                            'start_time' => $s->start_time,
+                            'end_time' => $s->end_time,
+                            'price' => $s->price
+                        ])->values()
                     ],
-                    'availabe_screenings' => $movieScreenings->map(fn ($s) => [
-                        'id' => $s->id,
-                        'room_id' => $s->room_id,
-                        'room_name' => $s->room->name,
-                        'start_time' => $s->start_time,
-                        'end_time' => $s->end_time,
-                        'price' => $s->price
-                    ])->values()
                 ];
             })
             ->values();
