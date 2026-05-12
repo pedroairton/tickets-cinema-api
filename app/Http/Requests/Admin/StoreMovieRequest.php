@@ -26,7 +26,7 @@ class StoreMovieRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'synopsis' => ['required', 'string', 'max:1000'],
             'duration_minutes' => ['required', 'integer', 'min:1', 'max:600'],
-            'image_url' => ['nullable', 'url', 'max:500'],
+            'image' => ['nullable', 'image', 'max:2048'],
             'trailer_url' => ['nullable', 'url', 'max:500'],
             'age_rating' => ['required', 'string', 'in:L,10,12,14,16,18'],
             'original_title' => ['nullable', 'string', 'max:255'],

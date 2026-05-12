@@ -30,6 +30,11 @@ class MovieController extends Controller
         $genreIds = $data['genres_ids'];
         unset($data['genres_ids']);
 
+        if($request->hasFile('image')){
+            $path = $request->file('image')->store('movies', 'public');
+            $data['image_url'] = $path;
+        }
+
         $movie = Movie::create($data);
         $movie->genres()->attach($genreIds);
         $movie->load('genres');
