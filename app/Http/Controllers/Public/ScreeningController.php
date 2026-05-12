@@ -19,7 +19,7 @@ class ScreeningController extends Controller
             ->onDate($date)
             ->where('start_time', '>=', now())
             ->with([
-                'movie:id,title,slug,image_url,age_rating,duration_minutes',
+                'movie:id,title,slug,synopsis,image_url,age_rating,duration_minutes',
                 'movie.genres:id,name,slug',
                 'room:id,name,total_rows,total_columns'
             ])
@@ -32,7 +32,7 @@ class ScreeningController extends Controller
                 $movie = $movieScreenings->first()->movie;
 
                 return [
-                    'movie' => [
+                    
                         'id' => $movie->id,
                         'title' => $movie->title,
                         'synopsis' => $movie->synopsis,
@@ -41,7 +41,7 @@ class ScreeningController extends Controller
                         'age_rating' => $movie->age_rating,
                         'duration_minutes' => $movie->duration_minutes,
                         'genres' => $movie->genres,
-                        'availabe_screenings' => $movieScreenings->map(fn($s) => [
+                        'available_screenings' => $movieScreenings->map(fn($s) => [
                             'id' => $s->id,
                             'room_id' => $s->room_id,
                             'room_name' => $s->room->name,
@@ -49,7 +49,7 @@ class ScreeningController extends Controller
                             'end_time' => $s->end_time,
                             'price' => $s->price
                         ])->values()
-                    ],
+                    
                 ];
             })
             ->values();

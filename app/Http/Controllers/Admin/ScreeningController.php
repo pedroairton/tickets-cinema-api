@@ -31,17 +31,18 @@ class ScreeningController extends Controller
             $data['room_id'],
             $data['start_time'],
             $data['end_time']
-        );
+        )->exists();
 
         if($conflict){
             return response()->json([
-                'message' => 'Já existe uma sessão marcada para esse horário nesta sala.'
+                'message' => 'Já existe uma sessão marcada para esse horário nesta sala.',
+                'data' => $conflict
             ], 409);
         }
 
         $screening = Screening::create($data);
         $screening->load([
-            'movie:id,title,slug,room:id,name',
+            'movie:id,title,slug',
             'room:id,name'
         ]);
 
