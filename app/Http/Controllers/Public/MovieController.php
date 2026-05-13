@@ -69,9 +69,7 @@ class MovieController extends Controller
 
         $movie->append('formatted_duration');
 
-        return response()->json([
-            'data' => $movie
-        ]);
+        return response()->json($movie);
     }
 
     public function screenings(Movie $movie) {
