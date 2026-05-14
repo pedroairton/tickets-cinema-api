@@ -16,7 +16,7 @@ class SeatController extends Controller
         $availableSeats = Seat::where('room_id', $screening->room_id)
             ->availableForScreening($screening->id)
             ->ordered()
-            ->get(['id', 'row_label', 'column_label', 'label']);
+            ->get(['id', 'row_label', 'column_number', 'label']);
 
         return response()->json([
             'screening_id' => $screening->id,

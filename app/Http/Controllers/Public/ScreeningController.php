@@ -126,7 +126,37 @@ class ScreeningController extends Controller
             'id' => $seat->id,
             'label' => $seat->label,
             'row_label' => $seat->row_label,
-            'column_label' => $seat->column_label,
+            'column_number' => $seat->column_number,
+            'is_occupied' => in_array($seat->id, $occupiedSeatsIds),
+        ])->groupBy('row_label');
+
+        return response()->json([
+            'screening' => [
+                'id' => $screening->id,
+                'room' => $screening->room->name,
+                'price' => $screening->price,
+            ],
+            'seat_map' => $seatMap
+        ]);
+    }
+    public function seatMap(Screening $screening)
+    {
+        $screening->load('room');
+
+        $allSeats = $screening->room->seats()
+        ->active()
+        ->ordered()
+        ->get();
+
+        $occupiedSeatsIds = Seat::occupiedForScreening($screening->id)
+        ->pluck('id')
+        ->toArray();
+
+        $seatMap = $allSeats->map(fn($seat) => [
+            'id' => $seat->id,
+            'label' => $seat->label,
+            'row_label' => $seat->row_label,
+            'column_number' => $seat->column_number,
             'is_occupied' => in_array($seat->id, $occupiedSeatsIds),
         ])->groupBy('row_label');
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Public\StoreOrderRequest;
+use App\Http\Requests\Customer\StoreOrderRequest;
 use App\Models\Order;
 use App\Models\Screening;
 use App\Models\Seat;

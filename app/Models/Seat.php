@@ -76,6 +76,6 @@ class Seat extends Model
 
     // ordernação padrao, fileira e coluna
     public function scopeOrdered(Builder $query){
-        return $query->orderBy('row_label')->orderBy('column_label');
+        return $query->orderBy('row_label')->orderBy('column_number');
     }
 }
