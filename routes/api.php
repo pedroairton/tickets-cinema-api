@@ -75,7 +75,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::prefix('admin')->group(function () {
-            Route::get('/dashboard/summary', [DashboardController::class, 'index']);
+            Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
             Route::get('/dashboard/top-movies', [DashboardController::class, 'topMovies']);
             Route::get('/dashboard/revenue', [DashboardController::class, 'revenue']);
             Route::get('/dashboard/popular-times', [DashboardController::class, 'popularTimes']);
