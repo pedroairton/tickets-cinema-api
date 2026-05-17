@@ -54,8 +54,8 @@ class DashboardController extends Controller
         $limit = $request->input('limit', 10);
 
         $query = Movie::select('movies.id', 'movies.title', 'movies.slug', 'movies.image_url')
-            ->join('screenings, movies.id = screenings.movie_id')
-            ->join('tickets, screenings.id = tickets.screening_id')
+            ->join('screenings', 'movies.id', '=', 'screenings.movie_id')
+            ->join('tickets', 'screenings.id', '=', 'tickets.screening_id')
             ->whereIn('tickets.status', ['active', 'used']);
 
         if ($startDate) {
@@ -83,8 +83,8 @@ class DashboardController extends Controller
         $query = Order::paid()
             ->select(
                 DB::raw('DATE(paid_at) as date'),
-                DB::raw('SUM(total_amount) as total_revenue'),
-                DB::raw('COUNT(*), as orders_count')
+                DB::raw('SUM(total_amount) as revenue'),
+                DB::raw('COUNT(*) as orders_count')
             )
             ->groupBy('date')
             ->orderBy('date');
@@ -114,16 +114,16 @@ class DashboardController extends Controller
             ->groupBy('hour')
             ->orderByDesc('tickets_sold');
 
-            if($startDate){
-                $query->where('tickets.created_at', '>=', $startDate);
-            }
+        if ($startDate) {
+            $query->where('tickets.created_at', '>=', $startDate);
+        }
 
-            $times = $query->get();
+        $times = $query->get();
 
-            return response()->json([
-                'data' => $times,
-                'period' => $request->input('period', 'total')
-            ]);
+        return response()->json([
+            'data' => $times,
+            'period' => $request->input('period', 'total')
+        ]);
     }
 
     public function topGenres(DashboardRequest $request)
@@ -131,21 +131,21 @@ class DashboardController extends Controller
         $startDate = $request->periodStartDate();
 
         $query = DB::table('genres')
-        ->join('genre_movie', 'genres.id', '=', 'genre_movie.genre_id')
-        ->join('movies', 'genre_movie.movie_id', '=', 'movies.id')
-        ->join('screenings', 'movies.id', '=', 'screenings.movie_id')
-        ->join('tickets', 'screenings.id', '=', 'tickets.screening_id')
-        ->whereIn('tickets.status', ['active', 'used'])
-        ->select(
-            'genres.id',
-            'genres.name',
-            'genres.slug',
-            DB::raw('COUNT(tickets.id) as tickets_sold')
-        )
-        ->groupBy('genres.id', 'genres.name', 'genres.slug')
-        ->orderByDesc('tickets_sold');
+            ->join('genre_movie', 'genres.id', '=', 'genre_movie.genre_id')
+            ->join('movies', 'genre_movie.movie_id', '=', 'movies.id')
+            ->join('screenings', 'movies.id', '=', 'screenings.movie_id')
+            ->join('tickets', 'screenings.id', '=', 'tickets.screening_id')
+            ->whereIn('tickets.status', ['active', 'used'])
+            ->select(
+                'genres.id',
+                'genres.name',
+                'genres.slug',
+                DB::raw('COUNT(tickets.id) as tickets_sold')
+            )
+            ->groupBy('genres.id', 'genres.name', 'genres.slug')
+            ->orderByDesc('tickets_sold');
 
-        if($startDate){
+        if ($startDate) {
             $query->where('tickets.created_at', '>=', $startDate);
         }
 
