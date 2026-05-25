@@ -91,6 +91,7 @@ Route::prefix('v1')->group(function () {
 
             // crud salas
             Route::apiResource('rooms', AdminRoomController::class);
+            Route::patch('/rooms/{room}/status', [AdminRoomController::class, 'updateStatus']);
 
             // crud generos
             Route::apiResource('genres', AdminGenreController::class);

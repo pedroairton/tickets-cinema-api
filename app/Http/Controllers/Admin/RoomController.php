@@ -82,4 +82,13 @@ class RoomController extends Controller
             'message' => 'Sala excluída com sucesso'
         ]);
     }
+
+    public function updateStatus(Request $request, Room $room){
+        $room->update(['is_active' => $request->is_active]);
+
+        return response()->json([
+            'message' => 'Sala atualizada com sucesso',
+            'data' => $room
+        ]);
+    }
 }
