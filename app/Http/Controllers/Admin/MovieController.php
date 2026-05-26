@@ -19,9 +19,39 @@ class MovieController extends Controller
                 'tickets as tickets_sold_count' => fn($q) => $q->valid(),
             ])
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->get();
 
-        return response()->json($movies);
+        $grouped = [
+            'showing' => [
+                'label' => 'Em cartaz',
+                'count' => 0,
+                'movies' => []
+            ],
+            'coming_soon' => [
+                'label' => 'Em breve',
+                'count' => 0,
+                'movies' => []
+            ],
+            'off_screen' => [
+                'label' => 'Fora de cartaz',
+                'count' => 0,
+                'movies' => []
+            ]
+        ];
+
+        foreach($movies as $movie){
+            $status = $movie->status;
+
+            if(isset($grouped[$status])){
+                $grouped[$status]['movies'][] = $movie;
+                $grouped[$status]['count']++;
+            }
+        }
+
+        return response()->json([
+            'total' => $movies->count(),
+            'data' => $grouped
+        ]);
     }
 
     public function store(StoreMovieRequest $request)
