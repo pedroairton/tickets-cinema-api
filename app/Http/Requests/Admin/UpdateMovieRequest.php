@@ -26,7 +26,7 @@ class UpdateMovieRequest extends FormRequest
             'title' => ['sometimes','required' ,'string', 'max:255'],
             'synopsis' => ['sometimes','required' ,'string', 'max:1000'],
             'duration_minutes' => ['sometimes','required' ,'integer', 'min:1', 'max:600'],
-            'image_url' => ['nullable', 'url', 'max:500'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,avif', 'max:2048'],
             'trailer_url' => ['nullable', 'url', 'max:500'],
             'age_rating' => ['sometimes','required' ,'string', 'in:L,10,12,14,16,18'],
             'original_title' => ['nullable' ,'string', 'max:255'],

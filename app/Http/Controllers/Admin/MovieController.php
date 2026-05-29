@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateMovieStatusRequest;
 use App\Http\Requests\Admin\StoreMovieRequest;
 use App\Models\Movie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MovieController extends Controller
 {
@@ -54,8 +55,9 @@ class MovieController extends Controller
         ]);
     }
 
-    public function store(StoreMovieRequest $request)
+    public function store(Request $request)
     {
+        dd($request->all());
         $data = $request->validated();
         $genreIds = $data['genres_ids'];
         unset($data['genres_ids']);
@@ -89,13 +91,21 @@ class MovieController extends Controller
     {
         $data = $request->validated();
 
-        if (isset($data['genre_ids'])) {
-            $movie->genres()->sync($data['genre_ids']);
-            unset($data['genre_ids']);
+        if (isset($data['genres_ids'])) {
+            $movie->genres()->sync($data['genres_ids']);
+            unset($data['genres_ids']);
         }
 
         $movie->update($data);
         $movie->load('genres');
+
+        if($request->hasFile('image')){
+            if($movie->image_url){
+                Storage::disk('public')->delete($movie->image_url);
+            }
+            $path = $request->file('image')->store('movies', 'public');
+            $movie->update(['image_url' => $path]);
+        }
 
         return response()->json([
             'message' => 'Filme atualizado com sucesso',
