@@ -55,9 +55,9 @@ class MovieController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreMovieRequest $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $data = $request->validated();
         $genreIds = $data['genres_ids'];
         unset($data['genres_ids']);
