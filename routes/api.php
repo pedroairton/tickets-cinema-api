@@ -83,6 +83,7 @@ Route::prefix('v1')->group(function () {
 
             // crud filmes
             Route::apiResource('movies', AdminMovieController::class);
+            Route::post('/movies/update/{movie}', [AdminMovieController::class, 'update']);
             Route::patch('/movies/{movie}/status', [AdminMovieController::class, 'updateStatus']);
             Route::get('/movies{movie}/insights', [AdminMovieController::class, 'insights']);
 
