@@ -31,4 +31,18 @@ class StoreScreeningRequest extends FormRequest
             'is_active' => ['nullable', 'boolean'],
         ];
     }
+    public function messages(): array
+    {
+        return [
+            'movie_id.required' => 'O campo filme é obrigatório.',
+            'movie_id.exists' => 'O filme selecionado não existe.',
+            'room_id.required' => 'O campo sala é obrigatório.',
+            'room_id.exists' => 'A sala selecionada não existe.',
+            'start_time.required' => 'O campo horário de início é obrigatório.',
+            'start_time.after' => 'O horário de início deve ser posterior ao horário atual.',
+            'end_time.required' => 'O campo horário de término é obrigatório.',
+            'end_time.after' => 'O horário de término deve ser posterior ao horário de início.',
+            'price.required' => 'O campo preço é obrigatório.',
+        ];
+    }
 }
