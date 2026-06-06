@@ -13,8 +13,19 @@ use Illuminate\Support\Facades\Storage;
 
 class MovieController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $status = $request->input('status');
+
+        if ($status) {
+            $movies = Movie::with('genres')->where('status', $status)
+                ->withCount([
+                    'tickets as tickets_sold_count' => fn($q) => $q->valid(),
+                ])->get();
+            return response()->json([
+                'data' => $movies
+            ]);
+        }
         $movies = Movie::with('genres')
             ->withCount([
                 'tickets as tickets_sold_count' => fn($q) => $q->valid(),
@@ -40,10 +51,10 @@ class MovieController extends Controller
             ]
         ];
 
-        foreach($movies as $movie){
+        foreach ($movies as $movie) {
             $status = $movie->status;
 
-            if(isset($grouped[$status])){
+            if (isset($grouped[$status])) {
                 $grouped[$status]['movies'][] = $movie;
                 $grouped[$status]['count']++;
             }
@@ -54,6 +65,14 @@ class MovieController extends Controller
             'data' => $grouped
         ]);
     }
+    public function showing()
+    {
+        $movies = Movie::with('genres')->where('status', 'showing')->get();
+
+        return response()->json([
+            'data' => $movies
+        ]);
+    }
 
     public function store(StoreMovieRequest $request)
     {
@@ -62,7 +81,7 @@ class MovieController extends Controller
         $genreIds = $data['genres_ids'];
         unset($data['genres_ids']);
 
-        if($request->hasFile('image')){
+        if ($request->hasFile('image')) {
             $path = $request->file('image')->store('movies', 'public');
             $data['image_url'] = $path;
         }
@@ -99,8 +118,8 @@ class MovieController extends Controller
         $movie->update($data);
         $movie->load('genres');
 
-        if($request->hasFile('image')){
-            if($movie->image_url){
+        if ($request->hasFile('image')) {
+            if ($movie->image_url) {
                 Storage::disk('public')->delete($movie->image_url);
             }
             $path = $request->file('image')->store('movies', 'public');
@@ -132,7 +151,8 @@ class MovieController extends Controller
         ]);
     }
 
-    public function updateStatus(UpdateMovieStatusRequest $request, Movie $movie){
+    public function updateStatus(UpdateMovieStatusRequest $request, Movie $movie)
+    {
         $movie->update(['status' => $request->status]);
 
         return response()->json([
@@ -141,12 +161,13 @@ class MovieController extends Controller
         ]);
     }
 
-    public function insights(DashboardRequest $request, Movie $movie){
+    public function insights(DashboardRequest $request, Movie $movie)
+    {
         $startDate = $request->periodStartDate();
 
         $ticketsQuery = $movie->tickets()->valid();
 
-        if($startDate){
+        if ($startDate) {
             $ticketsQuery->where('created_at', '>=', $startDate);
         }
 
@@ -154,7 +175,7 @@ class MovieController extends Controller
         $totalRevenue = $ticketsQuery->sum('unit_price');
 
         $screeningsQuery = $movie->screenings();
-        if($startDate){
+        if ($startDate) {
             $screeningsQuery->where('start_time', '>=', $startDate);
         }
         $totalScreenings = $screeningsQuery->count();
