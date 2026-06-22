@@ -62,7 +62,9 @@ class MovieController extends Controller
         ->where('status', 'showing')
         ->limit(5)->get();
 
-        return response()->json($movies);
+        return response()->json([
+            'data' => $movies
+        ]);
     }
 
     public function show(Movie $movie) {
